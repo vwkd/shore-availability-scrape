@@ -1,0 +1,5 @@
+{
+  "tasks": {
+    "start": "deno run -NE --env-file=.env --unstable-cron --unstable-kv --unstable-temporal src/main.ts"
+  }
+}
