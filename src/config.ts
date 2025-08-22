@@ -42,10 +42,6 @@ if (!NTFY_TOPIC) {
 
 const CRON_SCHEDULE = Deno.env.get("CRON_SCHEDULE");
 
-if (!CRON_SCHEDULE) {
-  throw new Error("Missing env var 'CRON_SCHEDULE'");
-}
-
 export {
   CRON_SCHEDULE,
   NTFY_TOPIC,

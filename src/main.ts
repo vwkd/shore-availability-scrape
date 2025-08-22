@@ -40,8 +40,10 @@ Deno.serve(() =>
   )
 );
 
-Deno.cron(
-  "check available slots",
-  CRON_SCHEDULE!,
-  db.updateAvailableSlots.bind(db),
-);
+if (CRON_SCHEDULE) {
+  Deno.cron(
+    "check available slots",
+    CRON_SCHEDULE!,
+    db.updateAvailableSlots.bind(db),
+  );
+}
