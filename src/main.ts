@@ -1,49 +1,24 @@
-import { CRON_SCHEDULE } from "./config.ts";
-import { Database } from "./database.ts";
+import { Hono } from "@hono/hono";
+import { getSlots } from "./get.ts";
 
-console.info(
-  `Starting Shore availability notifier on schedule '${CRON_SCHEDULE}'...`,
-);
+console.info(`Serving Shore availability scraper...`);
 
-const kv = await Deno.openKv();
+const app = new Hono();
 
-const db = await Database.create(kv);
+app.get(`/availability/:merchantId/:serviceId/:timezone/:startDate/:endDate`, async (c) => {
+  // todo: validate parameters
+  const merchantId = c.req.param("merchantId");
+  const serviceId = c.req.param("serviceId");
+  const timezone = c.req.param("timezone");
+  const startDate = c.req.param("startDate");
+  const endDate = c.req.param("endDate");
 
-Deno.serve(() =>
-  new Response(
-    `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shore available slots</title>
-</head>
-<body>
-  <h1>Shore available slots</h1>
-  ${
-      Array.from(db.availableSlots.entries()).map(([date, times]) => `
-    <div>
-      <h2>${date}</h2>
-      <ul>
-        ${Array.from(times).map((time) => `<li>${time}</li>`).join("\n")}
-      </ul>
-    </div>
-    `).join("\n")
-    }
-</body>
-</html>`,
-    {
-      headers: {
-        "Content-Type": "text/html",
-      },
-    },
-  )
-);
+  console.debug("Got request:", c.req.path);
 
-if (CRON_SCHEDULE) {
-  Deno.cron(
-    "check available slots",
-    CRON_SCHEDULE!,
-    db.updateAvailableSlots.bind(db),
-  );
-}
+  const res = await getSlots(merchantId, serviceId, timezone, startDate, endDate);
+  const slots = res.slots;
+
+  return Response.json(slots);
+});
+
+Deno.serve(app.fetch);

@@ -1,5 +1,8 @@
 {
   "tasks": {
-    "start": "deno run -NE --env-file=.env --unstable-cron --unstable-kv --unstable-temporal src/main.ts"
+    "start": "deno run -N src/main.ts"
+  },
+  "imports": {
+    "@hono/hono": "jsr:@hono/hono@^4.10.7"
   }
 }
